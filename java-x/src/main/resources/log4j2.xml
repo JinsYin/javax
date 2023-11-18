@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- status 属性表示 Log4j2 自身的日志级别 -->
+<configuration status="INFO">
+    <!-- 统一读取 application.properties（需要将其合并到 JVM Properties） -->
+    <!--
+    <Properties>
+        <Property name="key">VALUE</Property>
+    </Properties>
+    -->
+    <appenders>
+        <!-- 输出到控制台（TRACE 及其以上级别，最终 <Root> 来全局控制） -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <ThresholdFilter level="TRACE" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${sys:log4j2.consolePattern}"/>
+        </Console>
+        <!-- 输出到 Kafka -->
+        <Kafka name="Kafka" topic="${sys:log4j2.kafkaTopic}">
+            <Property name="bootstrap.servers">${sys:log4j2.kafkaServers}</Property>
+            <PatternLayout pattern="${sys:log4j2.kafkaPattern}"/>
+        </Kafka>
+    </appenders>
+    <loggers>
+        <!-- level 属性用于限定全局最小日志级别 -->
+        <Root level="${sys:log4j2.level}">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="Kafka"/>
+        </Root>
+        <!-- 避免递归记录日志 -->
+        <Logger name="org.apache.kafka" level="INFO" />
+    </loggers>
+</configuration>
